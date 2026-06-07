@@ -10,14 +10,23 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-primary: var(--color-indigo-600);
+  --color-primary-hover: var(--color-indigo-200);
+  --color-primary-shadow: var(--color-indigo-200);
+  --color-secondary: var(--color-slate-100);
+  --color-secondary-header: var(--color-slate-200);
+  --color-accent: var(--color-emerald-500);
+  --color-accent-shadow: var(--color-emerald-200);
+  --color-dangerous: var(--color-rose-500);
+  --color-text-main: var(--color-slate-900);
+  --color-text-subtle: var(--color-slate-600);
+  --color-text-muted: var(--color-slate-400);
+  --color-surface: var(--color-white);
+  --color-surface-muted: var(--color-slate-50);
+  --color-border: var(--color-slate-200)
+
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
   background: var(--background);
