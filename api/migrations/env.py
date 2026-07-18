@@ -4,6 +4,12 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from dotenv import load_dotenv
+import os
+from sqlalchemy import create_engine
+from models import Base
+
+load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +24,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -38,7 +44,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    DB_URL = os.getenv('DATABASE_URL')
+    url = config.set_main_option("salalchemy.url",DB_URL)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -57,10 +64,14 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
+    DB_URL = os.getenv('DATABASE_URL')
+    if not DB_URL:
+        raise Exception("database connection string is null when attempting to run migrations! " \
+        "ensure that the connections string is set. ")
+    
+    connectable = create_engine(
+        url=DB_URL,
+        poolclass=pool.NullPool
     )
 
     with connectable.connect() as connection:
