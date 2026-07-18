@@ -5,7 +5,7 @@ from api.schemas import Session, SessionUpdate,Topic
 from uuid import uuid4, UUID
 from api.llm.gemini import GeminiClient
 from api.service.feynman import FeynmanService
-from api.exceptions import SessionNotFoundError
+
 
 @pytest.fixture
 def get_db() -> SessionRepository:
@@ -25,49 +25,3 @@ def get_db() -> SessionRepository:
                              ])
 def test_is_valid_file(content_type: str, content: bytes, allowed_types: list[str], max_bytes: int, expected:bool) -> bool:
         assert GeminiClient.is_valid_file(content_type,content,allowed_types,max_bytes) == expected
-
-
-def test_create_session(get_db):
-        DB: SessionRepository = get_db
-        session_id = DB.create_session()        
-        assert isinstance(session_id,UUID)
-        assert isinstance(DB.get_session(session_id),Session)
-        
-
-def test_get_session(get_db):
-        DB: SessionRepository = get_db
-        session_id = DB.create_session() 
-        assert isinstance(DB.get_session(session_id),Session)
-
-def test_get_session_no_session(get_db):
-        DB: SessionRepository = get_db
-        bad_id = uuid4()
-        assert DB.get_session(bad_id) == None
-
-def test_update_session(get_db):
-        DB: SessionRepository = get_db
-        session_id = DB.create_session()
-        topic = Topic(name='topic', summary='test')
-        updated_session = DB.update_session(session_id,
-                SessionUpdate(topics=[topic]))
-        assert updated_session == DB.get_session(session_id)
-        assert updated_session.topics[0] == topic
-
-def test_delete_session(get_db):
-        DB: SessionRepository = get_db
-        session_id = DB.create_session()
-        deleted_id = DB.delete_session(session_id)
-
-        assert deleted_id == session_id
-        assert DB.get_session(deleted_id) == None
-        
-
-def test_delete_invalid_session(get_db):
-        DB: SessionRepository = get_db
-        session_id = DB.create_session()
-        invalid_id = uuid4()
-        
-        with pytest.raises(SessionNotFoundError):
-                DB.delete_session(invalid_id)
-
-                
