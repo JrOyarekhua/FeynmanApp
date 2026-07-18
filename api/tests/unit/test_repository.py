@@ -1,6 +1,6 @@
 import pytest
-from repository.memory import InMemoryRepository
-from repository.base import SessionRepository
+from repository.session.memory import InMemoryRepository
+from repository.session.base import SessionRepository
 from models import Session, SessionUpdate,Topic
 from uuid import uuid4, UUID
 from llm.gemini import GeminiClient

@@ -1,7 +1,7 @@
 
 from uuid import UUID
 from models import Evaluation, Session, SessionUpdate, Topic
-from repository.base import SessionRepository
+from repository.session.base import SessionRepository
 from llm.base import LLMClient
 from exceptions import SessionNotFoundError, InvalidFileError
 class FeynmanService():

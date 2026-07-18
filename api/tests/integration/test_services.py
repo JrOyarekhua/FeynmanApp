@@ -10,7 +10,7 @@ from models import (
     EvaluationResult,
     Confidencelevel,
 )
-from repository.memory import InMemoryRepository
+from repository.session.memory import InMemoryRepository
 from llm.base import LLMClient
 from dependencies import get_llm, get_db
 from app import app

@@ -1,4 +1,4 @@
-from repository.base import SessionRepository
+from repository.session.base import SessionRepository
 from uuid import uuid4,UUID
 from models import Session
 from exceptions import SessionNotFoundError
