@@ -9,9 +9,11 @@ dependencies = [
     "google-genai",
     "python-dotenv",
     "python-multipart>=0.0.32",
+    "sqlalchemy>=2.0.51",
 ]
 
 [dependency-groups]
 dev = [
+    "alembic>=1.18.5",
     "pytest",
 ]
