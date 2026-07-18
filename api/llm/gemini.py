@@ -2,11 +2,11 @@
 from io import BytesIO
 
 from pydantic import TypeAdapter
-from llm.base import LLMClient
+from api.llm.base import LLMClient
 from google.genai import Client
 from google.genai.types import File,GenerateContentConfig
 
-from models import Evaluation, Topic
+from api.schemas import Evaluation, Topic
 
 
 class GeminiClient(LLMClient):

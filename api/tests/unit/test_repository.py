@@ -1,11 +1,11 @@
 import pytest
-from repository.memory import InMemoryRepository
-from repository.base import SessionRepository
-from models import Session, SessionUpdate,Topic
+from api.repository.session.memory import InMemoryRepository
+from api.repository.session.base import SessionRepository
+from api.schemas import Session, SessionUpdate,Topic
 from uuid import uuid4, UUID
-from llm.gemini import GeminiClient
-from service.feynman import FeynmanService
-from exceptions import SessionNotFoundError
+from api.llm.gemini import GeminiClient
+from api.service.feynman import FeynmanService
+from api.exceptions import SessionNotFoundError
 
 @pytest.fixture
 def get_db() -> SessionRepository:

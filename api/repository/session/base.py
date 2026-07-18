@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from models import Session, SessionUpdate
+from api.schemas import Session, SessionUpdate
 from uuid import UUID
 
 

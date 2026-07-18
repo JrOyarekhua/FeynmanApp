@@ -1,9 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
-from models import CreateSessionReturn, DeleteSessionReturn, Evaluation, GetSessionReturn, Session, Topic, SessionBody, TopicReturn, TranscriptReturn, EvaluationReturn
+from api.schemas import CreateSessionReturn, DeleteSessionReturn, Evaluation, GetSessionReturn, Session, Topic, SessionBody, TopicReturn, TranscriptReturn, EvaluationReturn
 from uuid import UUID
-from dependencies import get_service
-from service.feynman import FeynmanService
-from exceptions import SessionNotFoundError, InvalidFileError
+from api.dependencies import get_service
+from api.service.feynman import FeynmanService
+from api.exceptions import SessionNotFoundError, InvalidFileError
 
 app = FastAPI()
 

@@ -1,71 +1,242 @@
-from pydantic import BaseModel
-from enum import Enum
-from uuid import UUID
-from google.genai.types import File
-from typing import Any, Optional
+from uuid import UUID, uuid4
+from datetime import datetime
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.types import String, TIMESTAMP, Uuid, Text, JSON
 
 
-# base models 
-class Topic(BaseModel):
-    name: str
-    summary: str
-
-# Evaluation 
-class Confidencelevel(str,Enum):
-    needs_improvement = 'needs_improvement'
-    average = 'average'
-    excellent = 'excellent'
-
-class EvaluationResult(BaseModel):
-    score: float
-    passed: list[str]
-    failed: list[str]
+class Base(DeclarativeBase):
+    pass
 
 
-class Evaluation(BaseModel):
-    confidenceLevel: Confidencelevel
-    coverage: EvaluationResult
-    accuracy: EvaluationResult
-    depth: EvaluationResult
-    improvementSummary: list[str]
+class User(Base):
+    __tablename__ = "users"
 
-# session 
-class SessionBase(BaseModel):
-    notes_ref: Optional[Any] = None
-    topics: Optional[list[Topic]] = None
-    audio_ref: Optional[Any] = None
-    transcript: Optional[str] = None
-    evaluation: Optional[Evaluation] = None
+    user_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+        comment="Unique identifier for user"
+    )
 
-class Session(SessionBase):
-    session_id: UUID
+    first_name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="User first name"
+    )
 
-class SessionUpdate(SessionBase):
-    pass 
-    
+    last_name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="User last name"
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        unique=True,
+        comment="User email address"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        comment="Timestamp when user was created"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        onupdate=datetime.now,
+        comment="Timestamp when user was last updated"
+    )
+
+    # One user can have many sessions
+    sessions: Mapped[list["Session"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
 
-# api endpoints 
-class ApiMethod(BaseModel):
-    message: str = 'success'
+class Session(Base):
+    __tablename__ = "sessions"
 
-class CreateSessionReturn(ApiMethod):
-    session_id: UUID
+    session_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+        comment="Unique identifier for learning session"
+    )
 
-class DeleteSessionReturn(BaseModel):
-    session_id: UUID
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.user_id"),
+        nullable=False,
+        comment="User who owns this session"
+    )
 
-class GetSessionReturn(ApiMethod):
-    session:Session
+    transcript: Mapped[str | None] = mapped_column(
+        Text,
+        comment="Generated transcript from uploaded recording"
+    )
 
-class SessionBody(BaseModel):
-    session_id: UUID
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        comment="Timestamp when session was created"
+    )
 
-class TopicReturn(ApiMethod):
-    topics: list[Topic]
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        onupdate=datetime.now,
+        comment="Timestamp when session was last updated"
+    )
 
-class TranscriptReturn(ApiMethod):
-    transcript: str
+    # Relationship to owner
+    user: Mapped["User"] = relationship(
+        back_populates="sessions"
+    )
 
-class EvaluationReturn(ApiMethod):
-    evaluation: Evaluation
+    # Session owns topics
+    topics: Mapped[list["Topic"]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan"
+    )
+
+    # Session owns evaluations
+    evaluations: Mapped[list["Evaluation"]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan"
+    )
+
+    # Session owns attachments
+    attachments: Mapped[list["Attachment"]] = relationship(
+        back_populates="session",
+        cascade="all, delete-orphan"
+    )
+
+
+class Topic(Base):
+    __tablename__ = "topics"
+
+    topic_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+        comment="Unique identifier for topic"
+    )
+
+    session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sessions.session_id"),
+        nullable=False,
+        comment="Session this topic belongs to"
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="Topic name"
+    )
+
+    summary: Mapped[str | None] = mapped_column(
+        Text,
+        comment="AI generated topic summary"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        comment="Timestamp when topic was created"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        onupdate=datetime.now,
+        comment="Timestamp when topic was last updated"
+    )
+
+    session: Mapped["Session"] = relationship(
+        back_populates="topics"
+    )
+
+
+class Evaluation(Base):
+    __tablename__ = "evaluations"
+
+    evaluation_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+        comment="Unique identifier for evaluation"
+    )
+
+    session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sessions.session_id"),
+        nullable=False,
+        comment="Session being evaluated"
+    )
+
+    evaluation_details: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False,
+        comment="AI evaluation output stored as JSON"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        comment="Timestamp when evaluation was generated"
+    )
+
+    session: Mapped["Session"] = relationship(
+        back_populates="evaluations"
+    )
+
+
+class Attachment(Base):
+    __tablename__ = "attachments"
+
+    attachment_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        default=uuid4,
+        comment="Unique identifier for attachment"
+    )
+
+    session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sessions.session_id"),
+        nullable=False,
+        comment="Session this attachment belongs to"
+    )
+
+    attachment_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="Type of attachment (audio, pdf, image, etc.)"
+    )
+
+    storage_loc: Mapped[str] = mapped_column(
+        String(500),
+        nullable=False,
+        comment="Object storage path/location"
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        comment="Timestamp when attachment was uploaded"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.now,
+        onupdate=datetime.now,
+        comment="Timestamp when attachment metadata changed"
+    )
+
+    session: Mapped["Session"] = relationship(
+        back_populates="attachments"
+    )
+
