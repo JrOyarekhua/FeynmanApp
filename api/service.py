@@ -6,7 +6,7 @@ contains the api functions as well as helper functions for the api logic
 from io import BytesIO
 from google.genai.types import File
 from google.genai.client import Client
-from models import *
+from api.schemas import *
 from uuid import UUID, uuid4
  
  
@@ -69,7 +69,7 @@ def is_valid_file(content_type: str, content: bytes, allowed_types: list[str], m
 from pathlib import Path
 from google.genai.types import GenerateContentConfig
 from pydantic import TypeAdapter
-from models import Topic
+from api.schemas import Topic
  
  
 def generate_session_topics(client: Client, session: Session, topic_prompt: str) -> list[Topic]:

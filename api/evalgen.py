@@ -2,7 +2,7 @@ from google import genai
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-from models import Evaluation
+from api.schemas import Evaluation
 from google.genai import types
 
 # 1. Load environment variables

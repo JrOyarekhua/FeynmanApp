@@ -1,9 +1,9 @@
 
 from uuid import UUID
-from models import Evaluation, Session, SessionUpdate, Topic
-from repository.session.base import SessionRepository
-from llm.base import LLMClient
-from exceptions import SessionNotFoundError, InvalidFileError
+from api.schemas import Evaluation, Session, SessionUpdate, Topic
+from api.repository.session.base import SessionRepository
+from api.llm.base import LLMClient
+from api.exceptions import SessionNotFoundError, InvalidFileError
 class FeynmanService():
 
     ALLOWED_NOTE_TYPES = ["application/pdf"]

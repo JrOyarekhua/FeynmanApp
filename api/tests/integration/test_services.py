@@ -4,16 +4,16 @@ from uuid import UUID
 import pytest
 from fastapi.testclient import TestClient
 
-from models import (
+from api.schemas import (
     Evaluation,
     Topic,
     EvaluationResult,
     Confidencelevel,
 )
-from repository.session.memory import InMemoryRepository
-from llm.base import LLMClient
-from dependencies import get_llm, get_db
-from app import app
+from api.repository.session.memory import InMemoryRepository
+from api.llm.base import LLMClient
+from api.dependencies import get_llm, get_db
+from api.app import app
 from pathlib import Path
 
 
