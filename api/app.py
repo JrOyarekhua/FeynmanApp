@@ -4,10 +4,11 @@ from uuid import UUID
 from api.dependencies import get_service
 from api.service.feynman import FeynmanService
 from api.exceptions import SessionNotFoundError, InvalidFileError
+from api.controllers.auth_controller import public_router
 
 app = FastAPI()
 
-
+app.include_router(public_router)
 # session handling 
 @app.post("/api/session")
 async def create_session(notes: UploadFile, audio: UploadFile, service: FeynmanService=Depends(get_service)) -> CreateSessionReturn:

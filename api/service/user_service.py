@@ -26,3 +26,6 @@ class UserService():
     def delete_account(self, user_id: UUID):
         id: UUID = self.repo.delete_user(user_id)
         return id
+    
+    def get_user(self, user_id: UUID) -> User:
+        return self.repo.get_user_by_id(user_id)

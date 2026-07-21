@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from api.repository.user_repo import UserRepository
 from api.service.user_service import UserService
-from fastapi import Depends
+from fastapi import Depends, Request, Response
 
 load_dotenv()
 
@@ -36,5 +36,9 @@ def get_db():
 def get_user_service(db:Session = Depends(get_db)):
     user_repo: UserRepository = UserRepository(db)
     return UserService(user_repo)
+
+# auth dependencies 
+
+def authorize_user(req: Request, res: Response):
 
 
