@@ -3,8 +3,8 @@ from datetime import datetime
 from models.base import Base
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import String, TIMESTAMP, Uuid
-
+from sqlalchemy.types import String, TIMESTAMP, Uuid, Enum
+from enums import AttachmentType, MimeType
 
 
 class Attachment(Base):
@@ -23,14 +23,24 @@ class Attachment(Base):
         comment="Session this attachment belongs to",
     )
 
-    attachment_type: Mapped[str] = mapped_column(
-        String(50),
+    attachment_type: Mapped[AttachmentType] = mapped_column(
+        Enum(AttachmentType, 
+             values_callable=lambda enum_cols: [c.value for c in enum_cols]),
         nullable=False,
         comment="Type of attachment (audio, pdf, image, etc.)"
     )
 
+    mime_type: Mapped[str] = mapped_column(
+        Enum(
+            MimeType, 
+            values_callable=lambda enum_cols: [c.value for c in enum_cols]
+        ),
+        nullable=False,
+        comment="Label telling other systems the format of a file"
+    )
+
     storage_loc: Mapped[str] = mapped_column(
-        String(500),
+        String(255),
         nullable=False,
         comment="Object storage path/location"
     )

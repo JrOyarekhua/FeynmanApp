@@ -22,11 +22,6 @@ class Session(Base):
         comment="User who owns this session"
     )
 
-    transcript: Mapped[str | None] = mapped_column(
-        Text,
-        comment="Generated transcript from uploaded recording"
-    )
-
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP,
         default=datetime.now,
@@ -42,8 +37,7 @@ class Session(Base):
 
     # Relationship to owner
     user: Mapped["User"] = relationship(
-        back_populates="sessions",
-        cascade="all, delete-orphan"
+        back_populates="sessions"
     )
 
     # Session owns topics
@@ -62,4 +56,10 @@ class Session(Base):
     attachments: Mapped[list["Attachment"]] = relationship(
         back_populates="session",
         cascade="all, delete-orphan"
+    )
+
+    # session owns transcripts 
+    transcript: Mapped["Transcript"] = relationship(
+        back_populates='session',
+        cascade='all, delete-orphan'
     )

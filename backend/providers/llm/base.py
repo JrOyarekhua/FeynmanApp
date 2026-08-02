@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
-from api.schemas import Topic,Evaluation
+from schemas import Topic,Evaluation
 
 class LLMClient(ABC):
 

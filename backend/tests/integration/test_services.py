@@ -4,7 +4,7 @@ from uuid import UUID
 import pytest
 from fastapi.testclient import TestClient
 
-from api.schemas import (
+from schemas import (
     Evaluation,
     Topic,
     EvaluationResult,
