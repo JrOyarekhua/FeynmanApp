@@ -39,12 +39,6 @@ class User(Base):
         comment="User email address"
     )
 
-    hashed_password: Mapped[UUID] = mapped_column(
-        Uuid,
-        nullable=False, 
-        unique=True,
-        comment="hashed password"
-    )
 
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP,

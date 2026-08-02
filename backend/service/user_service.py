@@ -1,6 +1,6 @@
 from repository.user_repo import UserRepository
 from models.user import User
-from api.schemas import UserCreate, UserUpdate
+from schemas import UserCreate, UserUpdate
 from uuid import UUID
 from sqlalchemy.orm import Session
 from providers.auth.base import AuthBase
@@ -15,6 +15,7 @@ class UserService():
 
         user: User = User() # create user objact 
         for key,val in data.model_dump(exclude_unset=True).items():
+            print(key,val)
             setattr(user,key,val)
 
         user_id = self.repo.create_user(user)

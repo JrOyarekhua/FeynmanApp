@@ -1,6 +1,7 @@
-from base import AuthBase
+from providers.auth import AuthBase
 from supabase import create_client, Client
 from supabase_auth import AuthResponse, ClaimsResponse
+from schemas.auth import AuthClaims, AuthResult, AuthResult
 
 class SupabaseAuth(AuthBase):
 
@@ -10,7 +11,7 @@ class SupabaseAuth(AuthBase):
             supabase_key=auth_key
         )
     
-    def sign_up(self, email, password) -> tuple:
+    def sign_up(self, email, password) -> AuthResult:
 
         res: AuthResponse  = self.supabase.auth.sign_up(
             {
@@ -19,7 +20,12 @@ class SupabaseAuth(AuthBase):
             }
         )
 
-        return (res.session.access_token, res.session.refresh_token)
+    
+        return AuthResult(
+            res.user.id,
+            res.session.access_token,
+            res.session.refresh_token
+        )
     
     def sign_in(self, email, password) -> tuple:
         res: AuthResponse = self.supabase.auth.sign_in_with_password(
@@ -29,17 +35,23 @@ class SupabaseAuth(AuthBase):
             }
         )
 
-        return (res.session.access_token, res.session.refresh_token)
+        return AuthResult (
+            res.user.id,
+            res.session.access_token,
+            res.session.refresh_token
+        )
     
     def sign_out(self):
         return self.supabase.auth.sign_out()
     
-    def validate(self,token: str) -> ClaimsResponse:
+    def validate(self,token: str) -> AuthClaims | None:
         res: ClaimsResponse = self.supabase.auth.get_claims(
             jwt=token
         ) 
 
-        return res if res else None
+        claims = res.get('claims')
+        
+        return AuthClaims(claims) if res else None
     
         
 

@@ -26,7 +26,7 @@ class Topic(Base):
     name: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
-        comment="Topic name"
+        comment="AI generated Topic name"
     )
 
     summary: Mapped[str | None] = mapped_column(
