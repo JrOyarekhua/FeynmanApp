@@ -12,7 +12,7 @@ class BaseStorage(ABC):
         pass 
 
     @abstractmethod
-    def download_file(self, storage_path: str):
+    def download_file(self, storage_path: str) -> bytes:
         pass 
     
     @abstractmethod 
