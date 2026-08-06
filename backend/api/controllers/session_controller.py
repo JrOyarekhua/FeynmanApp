@@ -1,7 +1,9 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
-from models import User
-from schemas import SessionCreate
-from dependencies import authorize_user
+from models import User, Session
+from dependencies import authorize_user, get_session_service
+from service import SessionService
+from uuid import UUID
+from schemas import SessionResponseDetailed, SessionResponse, AllSessionsResponse, SessionCursor
 
 router = APIRouter(
     prefix="/sessions",
@@ -10,18 +12,32 @@ router = APIRouter(
 )
 
 @router.post("/")
-def create_session(data: SessionCreate, user:User=Depends(authorize_user)):
-    pass 
+def create_session(user:User=Depends(authorize_user), 
+                   service: SessionService = Depends(get_session_service)) -> UUID:
+    return service.create_session(user.user_id)
 
 @router.get("/")
-def get_all_sessions():
-    pass
+def get_all_sessions(cursor: SessionCursor = None,
+                    limit: int = 10,
+                    user:User=Depends(authorize_user), 
+                    service: SessionService = Depends(get_session_service),
+                   ) -> AllSessionsResponse:
+    
+    cursor_created_at, cursor_id = None, None
+    
+    if cursor:
+        cursor_created_at, cursor_id = cursor.created_at, 
+        cursor.session_id
 
-@router.get('/{session_id}')
-def get_session(session_id):
-    pass
+    res = service.get_all_sessions(user.user_id, cursor_created_at, cursor_id,limit)
+    
+    return AllSessionsResponse(res.sessions, SessionCursor(res.next_cursor[0], res.next_cursor[1]))
+
+@router.get('/{session_id}', response_model=Session)
+def get_session(session_id: UUID, service: SessionService = Depends(get_session_service)):
+    return service.get_session(session_id)
 
 
 @router.delete('/{session_id}')
-def delete_session():
-    pass
+def delete_session(session_id: UUID ,service: SessionService = Depends(get_session_service)):
+    return service.delete_session(session_id)

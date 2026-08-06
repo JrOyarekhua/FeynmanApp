@@ -6,8 +6,8 @@ from uuid import UUID
 from providers.llm import GeminiClient, LLMClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from repository import UserRepository
-from service import UserService, AuthService
+from repository import UserRepository, SessionReopsitory
+from service import UserService, AuthService, SessionService
 from fastapi import Depends, Request, Response
 from providers.auth import AuthBase, SupabaseAuth
 from fastapi.exceptions import HTTPException
@@ -54,6 +54,10 @@ def get_auth_service(user_service: UserService = Depends(get_user_service),
                      auth_provider: AuthBase = Depends(get_auth_provider),
                      db: Session = Depends(get_db)):
     return AuthService(user_service, auth_provider, db)
+
+def get_session_service(db: Session = Depends(get_db)):
+    session_repo: SessionReopsitory = SessionReopsitory(db)
+    return SessionService(session_repo, db)
 
 # auth dependencies 
 
