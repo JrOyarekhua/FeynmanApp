@@ -2,8 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-class SessionCreate(BaseModel):
-    notes_storage_loc: str 
+
 
 class SessionResponse(BaseModel):
     session_id: UUID 
@@ -19,4 +18,12 @@ class SessionResponseDetailed(BaseModel):
     topics: None = None  
     evaluations: None = None
     attachments: None = None
+
+class SessionCursor(BaseModel):
+    created_at: datetime
+    session_id: UUID
+
+class AllSessionsResponse(BaseModel):
+    sessions: list[SessionResponse]
+    cursor: SessionCursor
 
