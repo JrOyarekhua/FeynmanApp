@@ -6,7 +6,7 @@ from providers.llm import LLMClient
 from google.genai import Client
 from google.genai.types import File,GenerateContentConfig
 
-from schemas import Evaluation, Topic
+from schemas.llm import EvalGen, TopicGen
 
 
 class GeminiClient(LLMClient):
@@ -33,25 +33,25 @@ class GeminiClient(LLMClient):
         return res.text
 
     
-    def generate_topics(self, notes_ref, prompt: str) -> list[Topic]:
+    def generate_topics(self, notes_ref, prompt: str) -> list[TopicGen]:
         res = self.client.models.generate_content(
             model=self._MODEL,
             contents=notes_ref,
             config=GenerateContentConfig(
                 system_instruction=prompt,
                 response_mime_type="application/json",
-                response_schema=list[Topic],
+                response_schema=list[TopicGen],
                 temperature=0
             )
         )
 
-        adapter = TypeAdapter(list[Topic])
+        adapter = TypeAdapter(list[TopicGen])
         topics = adapter.validate_json(res.text)
         return topics
 
-    def generate_evaluation(self, explanation, topics, prompt: str, notes) -> Evaluation:
+    def generate_evaluation(self, explanation, topics, prompt: str, notes) -> EvalGen:
         # serialize topics 
-        adapter = TypeAdapter(list[Topic])
+        adapter = TypeAdapter(list[TopicGen])
         formatted_topics = adapter.dump_json(topics).decode()
         user_input = f"""
         Transcription: {explanation}
@@ -65,10 +65,10 @@ class GeminiClient(LLMClient):
             config=GenerateContentConfig(
                 system_instruction=prompt,
                 response_mime_type="application/json",
-                response_schema=Evaluation,
+                response_schema=EvalGen,
                 temperature=0
             )
         )
 
-        evals = Evaluation.model_validate_json(res.text)
+        evals = EvalGen.model_validate_json(res.text)
         return evals

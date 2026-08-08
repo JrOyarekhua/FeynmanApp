@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any, Optional
-from schemas import Topic,Evaluation
+from schemas.llm import TopicGen, EvalGen
 
+
+    
 class LLMClient(ABC):
 
     @abstractmethod
@@ -13,11 +16,11 @@ class LLMClient(ABC):
         pass 
 
     @abstractmethod
-    def generate_topics(self, notes_ref: Any, prompt:str) -> list[Topic]:
+    def generate_topics(self, notes_ref: Any, prompt:str) -> list[TopicGen]:
         pass
 
     @abstractmethod
-    def generate_evaluation(self, explanation: str, topics:list[Topic], prompt:str, notes:Any) -> Evaluation:
+    def generate_evaluation(self, explanation: str, topics:list[TopicGen], prompt:str, notes:Any) -> EvalGen:
         pass
 
 

@@ -1,8 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
-
-
+from schemas.llm import TopicGen, EvalGen
+from typing import Any
 
 class SessionResponse(BaseModel):
     session_id: UUID 
@@ -15,9 +15,11 @@ class SessionResponseDetailed(BaseModel):
     user_id: UUID
     created_at: datetime
     transcript: str | None = None
-    topics: None = None  
-    evaluations: None = None
-    attachments: None = None
+    topics: TopicGen  = None  
+    evaluations: EvalGen = None
+    attachments: Any = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 class SessionCursor(BaseModel):
     created_at: datetime

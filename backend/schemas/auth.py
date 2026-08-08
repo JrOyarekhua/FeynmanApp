@@ -15,5 +15,6 @@ class AuthClaims(BaseModel):
     """
     Standardized user claims returned after validating a token.
     """
-    claims: dict | None = None
+    sub: str 
+    email: str
 

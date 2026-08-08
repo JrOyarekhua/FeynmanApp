@@ -1,22 +1,21 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
 from models import User, Session
-from dependencies import authorize_user, get_session_service
+from api.dependencies import authorize_user, get_session_service
 from service import SessionService
 from uuid import UUID
 from schemas import SessionResponseDetailed, SessionResponse, AllSessionsResponse, SessionCursor
 
-router = APIRouter(
-    prefix="/sessions",
+session_router = APIRouter(
+    prefix="/api/sessions",
     tags=["Sessions"],
-    responses={404: {"description":"Not Found"}}
 )
 
-@router.post("/")
+@session_router.post("/", response_model=SessionResponse)
 def create_session(user:User=Depends(authorize_user), 
-                   service: SessionService = Depends(get_session_service)) -> UUID:
+                   service: SessionService = Depends(get_session_service)):
     return service.create_session(user.user_id)
 
-@router.get("/")
+@session_router.get("/")
 def get_all_sessions(cursor: SessionCursor = None,
                     limit: int = 10,
                     user:User=Depends(authorize_user), 
@@ -24,7 +23,7 @@ def get_all_sessions(cursor: SessionCursor = None,
                    ) -> AllSessionsResponse:
     
     cursor_created_at, cursor_id = None, None
-    
+
     if cursor:
         cursor_created_at, cursor_id = cursor.created_at, 
         cursor.session_id
@@ -33,11 +32,11 @@ def get_all_sessions(cursor: SessionCursor = None,
     
     return AllSessionsResponse(res.sessions, SessionCursor(res.next_cursor[0], res.next_cursor[1]))
 
-@router.get('/{session_id}', response_model=Session)
+@session_router.get('/{session_id}', response_class=Session)
 def get_session(session_id: UUID, service: SessionService = Depends(get_session_service)):
     return service.get_session(session_id)
 
 
-@router.delete('/{session_id}')
+@session_router.delete('/{session_id}')
 def delete_session(session_id: UUID ,service: SessionService = Depends(get_session_service)):
     return service.delete_session(session_id)

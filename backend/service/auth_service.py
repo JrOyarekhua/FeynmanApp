@@ -18,6 +18,7 @@ class AuthService:
                 user_data.password
             )
             user_data.auth_id = res.auth_id
+            print(f'user_data:{user_data}')
             self.user_service.create_profile(user_data)
             self.db.commit()
             return res
@@ -33,7 +34,7 @@ class AuthService:
     
 
     def sign_out_user(self):
-
+        
         if self.auth_provider.sign_out():
             return True
         else:
