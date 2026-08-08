@@ -72,6 +72,7 @@ class UserRepository:
                 matching user object if found otherwise none
         
         """
+        print(f'sub:{sub}')
         return self.db.scalars(
             select(User).where(User.auth_id == sub)
         ).one_or_none()

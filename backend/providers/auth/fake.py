@@ -7,6 +7,7 @@ class FakeAuthProvider(AuthBase):
 
     def __init__(self):
         self._users: dict[str, dict] = {}
+        self.auth_id: UUID = str(uuid4())
 
     def sign_up(
         self,
@@ -14,20 +15,20 @@ class FakeAuthProvider(AuthBase):
         password: str,
     ) -> AuthResult:
 
-        auth_id: UUID = str(uuid4())
+        
 
         if email in self._users:
             raise Exception('No duplicate emails allowed !')
         
         self._users[email] = {
-            "auth_id": auth_id,
+            "auth_id": self.auth_id,
             "password": password,
         }
 
         return AuthResult(
             access_token="fake-access-token",
             refresh_token="fake-refresh-token",
-            auth_id=auth_id,
+            auth_id=self.auth_id,
         )
 
     def sign_in(
@@ -57,12 +58,13 @@ class FakeAuthProvider(AuthBase):
         token: str,
     ) -> AuthClaims | None:
 
+        
         if token != "fake-access-token":
             return None
-
+        
         return AuthClaims(
-            sub="fake-user-id",
-            email="test@example.com",
+            sub=self.auth_id,
+            email="test@test.com",
         )
     
     

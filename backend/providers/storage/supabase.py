@@ -1,4 +1,4 @@
-from storage import BaseStorage
+from providers.storage import BaseStorage
 from supabase import Client, create_client
 
 class SupabaseStorage(BaseStorage):

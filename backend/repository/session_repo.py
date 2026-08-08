@@ -12,7 +12,7 @@ class SessionReopsitory:
         self.db.add(session)
         self.db.flush()
         self.db.refresh(session)
-        return session.session_id
+        return session
 
     def get_sesssion_by_id(self, session_id: UUID):
         return self.db.get(SessionModel,session_id)

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from sqlalchemy.orm import Session
 from models import Session as SessionModel
 from repository import SessionReopsitory
@@ -18,13 +19,13 @@ class SessionService:
         
         
 
-    def create_session(self,user_id) -> UUID:
+    def create_session(self,user_id) -> Session:
         # create session in the repo 
-        new_session: SessionModel = SessionModel(user_id)
-        new_session_id = self.repo.create_session(new_session)
+        new_session: SessionModel = SessionModel(user_id=user_id)
+        res = self.repo.create_session(new_session)
         # commit the changes
         self.db.commit()
-        return new_session_id
+        return res
     
     def get_all_sessions(self,user_id,cursor_created_at, cursor_id, limit=10) -> PaginatedSessions:
         """

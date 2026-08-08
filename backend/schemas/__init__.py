@@ -1,4 +1,4 @@
-from .topic import Topic
+from .topic import TopicCreate, TopicResponse
 from .evaluation import Evaluation
 from .session import SessionResponse, SessionResponseDetailed, AllSessionsResponse, SessionCursor
 from .user import UserAuth, UserCreate, UserUpdate, UserResponse

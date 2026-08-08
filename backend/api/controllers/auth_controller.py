@@ -32,6 +32,6 @@ def log_in_user(user_data: UserAuth, auth_service: AuthService = Depends(get_aut
 @auth_router.post("/logout")
 def sign_out_user(auth_service: AuthService = Depends(get_auth_service), user: User = Depends(authorize_user)):
         auth_service.sign_out_user()
-        return {'message': f'user {user.user_id} succesfully signed out' }
+        return {'message': f'user {user.auth_id} succesfully signed out' }
 # def delete_user(): 
 #     pass 
