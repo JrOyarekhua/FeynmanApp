@@ -6,13 +6,14 @@ from uuid import UUID
 from providers.llm import GeminiClient, LLMClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
-from repository import UserRepository, SessionReopsitory
-from service import UserService, AuthService, SessionService
+from repository import UserRepository, SessionReopsitory, AttachmentRepository
+from service import UserService, AuthService, SessionService, AttachmentService
 from fastapi import Depends, Request, Response
 from providers.auth import AuthBase, SupabaseAuth
 from fastapi.exceptions import HTTPException
 from models import User
 from schemas.auth import AuthClaims
+from providers.storage import BaseStorage, SupabaseStorage
 import os 
 
 print(os.getcwd())
@@ -23,7 +24,8 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 DB_URL = os.getenv("DATABASE_URL")
 AUTH_URL = os.getenv("AUTH_URL")
 AUTH_KEY = os.getenv("AUTH_KEY")
-
+STORAGE_URL = os.getenv("STORAGE_URL")
+STORAGE_KEY = os.getenv("STORAGE_KEY")
 
 engine = create_engine(DB_URL,echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -49,19 +51,25 @@ def get_auth_provider() -> AuthBase:
 def get_llm() -> LLMClient:
     return GeminiClient(API_KEY)
 
+def get_storage() -> BaseStorage:
+    return SupabaseStorage(STORAGE_URL,STORAGE_KEY)
+
 # service dependencies 
 def get_user_service(db:Session = Depends(get_db)):
     user_repo: UserRepository = UserRepository(db)
     return UserService(user_repo)
 
 def get_auth_service(user_service: UserService = Depends(get_user_service), 
-                     auth_provider: AuthBase = Depends(get_auth_provider),
-                     db: Session = Depends(get_db)):
-    return AuthService(user_service, auth_provider, db)
+                     auth_provider: AuthBase = Depends(get_auth_provider)):
+    return AuthService(user_service, auth_provider)
 
 def get_session_service(db: Session = Depends(get_db)):
     session_repo: SessionReopsitory = SessionReopsitory(db)
-    return SessionService(session_repo, db)
+    return SessionService(session_repo)
+
+def get_attachment_service(db: Session = Depends(get_db), storage: BaseStorage = Depends(get_storage)):
+    attachment_repo = AttachmentRepository(db)
+    return AttachmentService(attachment_repo,storage)
 
 # auth dependencies 
 
@@ -82,7 +90,6 @@ def authorize_user(req: Request, user_service: UserService = Depends(get_user_se
 
     claims: AuthClaims = auth_provider.validate(token)
 
-    print(f'claims: {claims}')
 
     if not claims:
         raise HTTPException(status_code=401, detail="Invalid token" )

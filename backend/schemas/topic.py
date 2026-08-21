@@ -6,7 +6,6 @@ class TopicCreate(BaseModel):
     notes_loc: str 
 
 class TopicResponse(BaseModel):
-    session_id: UUID 
     topic_id: UUID 
     name: str
     summary: str 

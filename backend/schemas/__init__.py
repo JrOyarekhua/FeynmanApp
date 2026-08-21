@@ -1,5 +1,7 @@
+from .base import Cursor
 from .topic import TopicCreate, TopicResponse
-from .evaluation import Evaluation
-from .session import SessionResponse, SessionResponseDetailed, AllSessionsResponse, SessionCursor
+from .session import SessionResponse, SessionResponseDetailed, AllSessionsResponse
 from .user import UserAuth, UserCreate, UserUpdate, UserResponse
 from .auth import AuthClaims, AuthResult, AuthResult
+from .attachment import AttachmentCreate, AttachmentResponse, AttachmentCursor
+from .evaluation import EvaluationResponse

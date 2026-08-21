@@ -1,14 +1,11 @@
-from pydantic import BaseModel
-from enums import ConfidenceLevel
+from pydantic import BaseModel, ConfigDict, Json
+from uuid import UUID
+from datetime import datetime
+from schemas.llm import EvalResult
 
-class EvaluationResult(BaseModel):
-    score: float
-    passed: list[str]
-    failed: list[str]
+class EvaluationResponse(BaseModel):
+    evaluation_id: UUID
+    created_at: datetime
+    evaluation_details: EvalResult
 
-class Evaluation(BaseModel):
-    confidenceLevel: ConfidenceLevel
-    coverage: EvaluationResult
-    accuracy: EvaluationResult
-    depth: EvaluationResult
-    improvementSummary: list[str]
+    model_config=ConfigDict(from_attributes=True)

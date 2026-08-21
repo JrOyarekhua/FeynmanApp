@@ -4,7 +4,7 @@ from fastapi import UploadFile
 class BaseStorage(ABC):
     
     @abstractmethod
-    def upload(self, storage_path: str, file: UploadFile) -> None:
+    def upload(self,content: bytes, content_type:str , size_limit: int = None) -> str:
         pass 
 
     @abstractmethod

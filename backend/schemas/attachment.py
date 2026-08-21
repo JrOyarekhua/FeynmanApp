@@ -1,16 +1,34 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from enums import AttachmentType, MimeType
 from models import Attachment
-
-
+from datetime import datetime 
 
 class AttachmentCreate(BaseModel):
-    session_id: str 
+    session_id: UUID 
     attachment_type: AttachmentType
     mime_type: MimeType
-    storage_loc: str
+    content: bytes 
 
-class AttachmentReturn(BaseModel):
+
+class AttachmentResponse(BaseModel):
     attachment_id: str 
     attachment_type: str
+    mime_type: MimeType
+    storage_loc: str 
+
+    model_config = ConfigDict(from_attributes=True)
+
+class AttachmentUpdate(BaseModel):
+    attachment_id: UUID 
+    AttachmentType: str | None 
+    mime_type: str | None 
+    storage_loc: str | None 
+
+class AttachmentCursor:
+    attachment_id: UUID
+    created_at: datetime
+
+class AllAttachmentResponse:
+    attachments: list[AttachmentResponse]
+    cursor: AttachmentCursor

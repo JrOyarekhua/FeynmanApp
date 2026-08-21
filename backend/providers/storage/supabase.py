@@ -1,5 +1,6 @@
 from providers.storage import BaseStorage
-from supabase import Client, create_client
+from supabase import Client, create_client 
+from uuid import UUID
 
 class SupabaseStorage(BaseStorage):
 
@@ -18,21 +19,24 @@ class SupabaseStorage(BaseStorage):
 
     def upload(
         self,
-        storage_path: str,
+        user_id: UUID,
+        session_id:UUID,
+        attachment_id: UUID,
         file_bytes: bytes,
         content_type: str
-    ) -> None:
+    ) -> str:
 
-        self.supabase.storage \
+        res = self.supabase.storage \
             .from_(self.bucket) \
             .upload(
-                path=storage_path,
+                path=f'{self.bucket}/users/{user_id}/sessions/{session_id}/attachments/{attachment_id}',
                 file=file_bytes,
                 file_options={
                     "content-type": content_type
                 }
             )
 
+        return res.full_path
 
     def download_file(
         self,
@@ -62,3 +66,5 @@ class SupabaseStorage(BaseStorage):
         )
 
         return response["signedURL"]
+    
+    

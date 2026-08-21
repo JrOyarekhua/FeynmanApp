@@ -1,10 +1,12 @@
 import pytest
-from api.dependencies import SessionLocal, get_auth_provider, get_db
+from api.dependencies import SessionLocal, get_auth_provider, get_db, get_storage
 from sqlalchemy import text
 from providers.auth import FakeAuthProvider 
+from providers.storage import FakeStorage
 from schemas import AuthClaims, AuthResult, UserCreate, UserAuth
 from fastapi.testclient import TestClient
 from api.app import app 
+from uuid import UUID
 import pytest
 
 @pytest.fixture
@@ -32,9 +34,11 @@ def user():
 @pytest.fixture
 def client(test_session):
     fake_provider = FakeAuthProvider()
-    app.dependency_overrides[get_auth_provider] = lambda: fake_provider
+    fake_storage = FakeStorage()
 
+    app.dependency_overrides[get_auth_provider] = lambda: fake_provider
     app.dependency_overrides[get_db] =  lambda: test_session
+    app.dependency_overrides[get_storage] = lambda: fake_storage
 
     yield TestClient(app)
 
@@ -65,3 +69,46 @@ def tokens(client: TestClient, user: UserCreate):
         access_token=body['access_token'],
         refresh_token=body['refresh_token']
     )
+
+@pytest.fixture
+def session_id(client: TestClient, tokens: AuthResult):
+    res = client.post(
+        "/api/sessions",
+        headers={"Authorization":f"Bearer {tokens.access_token}"}
+    )
+
+    assert res.status_code == 200, res.text 
+
+    body = res.json()
+    session_id = body['session_id']
+
+    assert session_id 
+
+    return session_id
+
+@pytest.fixture
+def multiple_sessions(client: TestClient, tokens: AuthResult):
+    session_list = []
+    for _ in range(25):
+        res = client.post(
+            'api/sessions',
+            headers={"Authorization":f"Bearer {tokens.access_token}"}
+        )
+
+        assert res.status_code == 200, res.text
+
+        body = res.json()
+
+        assert body['session_id']
+        
+
+        session_list.append(body)
+    print('all sessions created !')
+    return session_list
+
+# @pytest.fixture
+# def multiple_attachments(client: TestClient, multiple_sessions: list[UUID]):
+#     for session_id in multiple_sessions:
+        
+
+
