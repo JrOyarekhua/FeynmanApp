@@ -1,4 +1,6 @@
-from storage import BaseStorage
+from providers.storage import BaseStorage
+from uuid import uuid4
+
 
 class FakeStorage(BaseStorage):
 
@@ -6,17 +8,14 @@ class FakeStorage(BaseStorage):
         self.files = {}
 
 
-    def upload(
-        self,
-        storage_path: str,
-        file_bytes: bytes,
-        content_type: str
-    ):
-
+    def upload(self, content: bytes, content_type: str, size_limit: int = None) -> str:
+        # generate a fake storage path and store bytes
+        storage_path = f"fake/{uuid4()}"
         self.files[storage_path] = {
-            "content": file_bytes,
+            "content": content,
             "content_type": content_type
         }
+        return storage_path
 
 
     def download_file(

@@ -6,10 +6,9 @@ from sqlalchemy.orm import Session
 
 class AuthService:
 
-    def __init__(self, user_service: UserService, auth_provider: AuthBase, db: Session):
+    def __init__(self, user_service: UserService, auth_provider: AuthBase):
         self.user_service = user_service
         self.auth_provider = auth_provider
-        self.db = db 
 
     def sign_up_user(self, user_data: UserCreate) -> AuthResult:
         try:
@@ -20,11 +19,10 @@ class AuthService:
             user_data.auth_id = res.auth_id
             print(f'user_data:{user_data}')
             self.user_service.create_profile(user_data)
-            self.db.commit()
             return res
-        except Exception: 
-            self.db.rollback()
-            raise 
+        except Exception:
+            # repository should handle rollback/cleanup if needed
+            raise
             
 
     def sign_in_user(self, email, password) -> AuthResult:

@@ -1,7 +1,11 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
-from schemas.llm import TopicGen, EvalGen
+from schemas.base import Cursor
+from schemas.topic import TopicResponse
+from schemas.evaluation import EvaluationResponse
+from schemas.attachment import AttachmentResponse
+import schemas
 from typing import Any
 
 class SessionResponse(BaseModel):
@@ -15,17 +19,13 @@ class SessionResponseDetailed(BaseModel):
     user_id: UUID
     created_at: datetime
     transcript: str | None = None
-    topics: TopicGen  = None  
-    evaluations: EvalGen = None
-    attachments: Any = None
+    topics: list[TopicResponse] = [] 
+    evaluations: list[EvaluationResponse] = []
+    attachments: list[AttachmentResponse] = []
 
-    model_config = ConfigDict(from_attributes=True)
-
-class SessionCursor(BaseModel):
-    created_at: datetime
-    session_id: UUID
+    
 
 class AllSessionsResponse(BaseModel):
     sessions: list[SessionResponse]
-    cursor: SessionCursor
+    cursor: str
 

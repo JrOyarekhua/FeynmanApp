@@ -46,6 +46,8 @@ class UserRepository:
         self.db.add(user)
         self.db.flush()
         self.db.refresh(user)
+        # repository owns committing
+        self.db.commit()
         return user.user_id
 
     def get_user_by_id(self, user_id: UUID) -> User | None:

@@ -12,6 +12,8 @@ class SessionReopsitory:
         self.db.add(session)
         self.db.flush()
         self.db.refresh(session)
+        # repository commits the transaction
+        self.db.commit()
         return session
 
     def get_sesssion_by_id(self, session_id: UUID):
@@ -21,10 +23,12 @@ class SessionReopsitory:
             sesion: SessionModel = self.get_sesssion_by_id(session_id)
             self.db.delete(sesion)
             self.db.flush()
+            self.db.commit()
+            return session_id
 
-    def get_all_sessions(self,user_id,limit,cursor_created_at, cursor_id) -> tuple[list[SessionModel], datetime, UUID]:
+    def get_all_sessions(self,user_id,limit,cursor_created_at = None, cursor_id = None) -> tuple[list[SessionModel], datetime, UUID]:
         query = select(SessionModel).where(SessionModel.user_id == user_id) \
-        .order_by(SessionModel.created_at.desc, SessionModel.session_id.desc) 
+        .order_by(SessionModel.created_at.desc(), SessionModel.session_id.desc()) 
 
         if cursor_created_at is not None and cursor_id is not None:
             query = query.where(
