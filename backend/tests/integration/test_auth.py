@@ -1,9 +1,9 @@
 from fastapi.testclient import TestClient
-from api.dependencies import get_auth_provider, SessionLocal, get_db
 import pytest 
-from api.app import app
-from schemas import AuthClaims, AuthResult, UserCreate, UserAuth
-from providers.auth import FakeAuthProvider
+from src.api.app import app
+from src.auth.schemas import AuthClaims, AuthResult
+from src.user.schema import UserCreate, UserAuth
+from src.core.providers.auth import FakeAuthProvider
 from sqlalchemy import text
 from tests.conftest import client,user,registered_user,tokens
 

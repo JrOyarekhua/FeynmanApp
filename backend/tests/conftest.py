@@ -1,11 +1,15 @@
 import pytest
-from api.dependencies import SessionLocal, get_auth_provider, get_db, get_storage
+from src.api.dependencies.database import SessionLocal
+from src.api.dependencies.providers import get_auth_provider
+from src.api.dependencies.database import get_db
+from src.api.dependencies.providers import get_storage
 from sqlalchemy import text
-from providers.auth import FakeAuthProvider 
-from providers.storage import FakeStorage
-from schemas import AuthClaims, AuthResult, UserCreate, UserAuth
+from src.core.providers.auth import FakeAuthProvider 
+from src.core.providers.storage import FakeStorage
+from src.auth.schemas import AuthClaims, AuthResult
+from src.user.schema import UserCreate, UserAuth
 from fastapi.testclient import TestClient
-from api.app import app 
+from src.api.app import app 
 from uuid import UUID
 import pytest
 
