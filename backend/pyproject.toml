@@ -1,0 +1,25 @@
+[project]
+name = "feynman-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]",
+    "google-genai",
+    "psycopg2>=2.9.12",
+    "pydantic[email]>=2.13.4",
+    "python-dotenv",
+    "python-multipart>=0.0.32",
+    "sqlalchemy>=2.0.51",
+    "supabase>=2.31.0",
+]
+
+[dependency-groups]
+dev = [
+    "alembic>=1.18.5",
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "."
