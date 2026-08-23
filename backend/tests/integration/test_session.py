@@ -17,7 +17,7 @@ def test_create_session(client: TestClient ,tokens: AuthResult):
     assert body, res.text
     assert body['session_id']
 
-def test_retriving_single_session(client:TestClient, tokens: AuthResult, session_id: UUID):
+def test_retriving_single_session(client:TestClient, tokens: AuthResult, session_id: str):
     res = client.get(
     f"/api/sessions/{session_id}",
     headers={"Authorization": f"Bearer {tokens.access_token}"},
@@ -51,7 +51,7 @@ def test_get_all_sessions(client: TestClient, tokens: AuthResult, multiple_sessi
     assert body['cursor']
     
 
-def test_delete_session(client: TestClient, tokens: AuthResult, session_id: UUID):
+def test_delete_session(client: TestClient, tokens: AuthResult, session_id: str):
     res = client.delete(f'api/sessions/{session_id}',
                         headers={'Authorization': f'Bearer {tokens.access_token}'})
     assert res.status_code == 200, res.text

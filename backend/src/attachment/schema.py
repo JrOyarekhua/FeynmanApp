@@ -13,7 +13,7 @@ class AttachmentCreate(BaseModel):
 
 
 class AttachmentResponse(BaseModel):
-    attachment_id: str 
+    attachment_id: UUID
     attachment_type: str
     mime_type: MimeType
     storage_loc: str 
@@ -22,10 +22,10 @@ class AttachmentResponse(BaseModel):
 
 class AttachmentUpdate(BaseModel):
     attachment_id: UUID 
-    AttachmentType: str | None 
+    attachment_type: str | None 
     mime_type: str | None 
     storage_loc: str | None 
 
-class AllAttachmentResponse:
+class AllAttachmentResponse(BaseModel):
     attachments: list[AttachmentResponse]
-    cursor: Cursor | None
+    cursor: str | None

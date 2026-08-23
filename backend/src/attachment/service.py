@@ -7,6 +7,8 @@ from src.core.enums import MimeType, AttachmentType
 from dataclasses import dataclass
 from src.attachment.repository import AttachmentRepository
 from datetime import datetime
+from src.utils.cursor import encode, decode
+from src.core.schemas import Cursor
 
 @dataclass
 class AttachmentData:
@@ -62,10 +64,24 @@ class AttachmentService:
     def get_attachment(self, attachment_id) -> Attachment:
         return self.attachment_repo.get_attachment(attachment_id)
 
-    def get_all_attachments(self, cursor_created_at: datetime, cursor_session_id: UUID, type: str, session_id: UUID, user_id: UUID | None = None) -> list[Attachment]:
+    def get_all_attachments(self, cursor: str | None, type: str, session_id: UUID, user_id: UUID | None = None, limit: int = 10) -> PaginatedAttachments:
         # create custom error for invalid attachment type 
         AttachmentType(type)
-        return self.attachment_repo.get_all_attachments(session_id, user_id)
+
+        last_attachment_id, last_created_at = None, None
+        if cursor:
+            decoded_cursor = decode(cursor)
+            last_created_at = decoded_cursor.cursor_created_at
+            last_attachment_id = decoded_cursor.cursor_id
+
+        attachments = self.attachment_repo.get_all_attachments(session_id, user_id, last_created_at, 
+                                                        last_attachment_id, type, limit)
+        if attachments:
+            last_attachment = attachments[-1]
+            cursor = Cursor(cursor_created_at=last_attachment.created_at, cursor_id=last_attachment.attachment_id)
+            encoded_cursor = encode(cursor)
+
+        return PaginatedAttachments(attachments=attachments, cursor=encoded_cursor)
 
     def delete_attachment(self, attachment_id: UUID) -> UUID:
         self.attachment_repo.delete_attachment(attachment_id)

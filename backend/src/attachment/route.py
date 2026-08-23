@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile
 from src.core.schemas import Cursor
-from src.attachment.schema import AttachmentResponse
+from src.attachment.schema import AttachmentResponse, AllAttachmentResponse
 from src.attachment.service import AttachmentService, AttachmentData
 from src.core.enums import AttachmentType, MimeType
 from src.user.model import User
@@ -33,22 +33,23 @@ async def upload_attachment(session_id:UUID,
     )
     
     attachment_id = attachment_service.upload_attachment(data)
-    return {"attachment_id": str(attachment_id)}
+    return {"attachment_id": attachment_id}
 
 
     
 
-@attachment_router.get("", response_model=list[AttachmentResponse])
+@attachment_router.get("")
 def get_all_attachment(session_id: UUID, 
-                  type: str,
-                  session: bool,
+                  type: str | None = None,
+                  session: bool = False,
                   user: User = Depends(authorize_user), 
                   attachment_service: AttachmentService = Depends(get_attachment_service),
-                  cursor: Cursor | None = None):
+                  cursor: str| None = None,
+                  limit: int = 10) -> AllAttachmentResponse:
     
     user_id = None if session else user.user_id
-    attachment_service.get_all_attachments(cursor.created_at, cursor.attachment_id, type, session_id, user_id)
-
+    res = attachment_service.get_all_attachments(cursor, type, session_id, user_id, limit)
+    return AllAttachmentResponse(attachments=res.attachments, cursor=res.cursor)
 
 # @attachment_router.post("/{attachment_id}", response_model=AttachmentResponse)
 # def update_attachment(user: User = Depends(authorize_user), attachment_service: AttachmentService = Depends(get_attachment_service)):
@@ -63,5 +64,10 @@ def get_attachment(attachment_id: UUID, user = Depends(authorize_user), attachme
 def delete_attachment(attachment_id: UUID, user = Depends(authorize_user), attachment_service: AttachmentService = Depends(get_attachment_service)):
     attachment_id = attachment_service.delete_attachment(attachment_id)
     return {'message':f'attachment {attachment_id} succesfully deleted'}
+
+@attachment_router.get("/{attachment_id}/url")
+def get_attachment_url(attachment_id: UUID, user = Depends(authorize_user), attachment_service: AttachmentService = Depends(get_attachment_service)):
+    url = attachment_service.get_attachment_url(attachment_id)
+    return {'attachment_url':url}
 
 

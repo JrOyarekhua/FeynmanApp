@@ -75,7 +75,7 @@ def tokens(client: TestClient, user: UserCreate):
     )
 
 @pytest.fixture
-def session_id(client: TestClient, tokens: AuthResult):
+def session_id(client: TestClient, tokens: AuthResult) -> str:
     res = client.post(
         "/api/sessions",
         headers={"Authorization":f"Bearer {tokens.access_token}"}
@@ -87,7 +87,6 @@ def session_id(client: TestClient, tokens: AuthResult):
     session_id = body['session_id']
 
     assert session_id 
-
     return session_id
 
 @pytest.fixture
@@ -110,9 +109,38 @@ def multiple_sessions(client: TestClient, tokens: AuthResult):
     print('all sessions created !')
     return session_list
 
-# @pytest.fixture
-# def multiple_attachments(client: TestClient, multiple_sessions: list[UUID]):
-#     for session_id in multiple_sessions:
-        
+@pytest.fixture 
+def attachment_id(client: TestClient, tokens: AuthResult, session_id: UUID):
+    with open('tests/data/expressions.pdf', 'rb') as file:
+        content = file.read()
+        res = client.post(
+            f"/api/sessions/{session_id}/attachment",
+            files={'attachment':('expressions.pdf',content,'application/pdf')},
+            headers={"Authorization":f"Bearer {tokens.access_token}"}
+        )
+
+        assert res.status_code == 200, res.text
+        body = res.json()
+        assert body['attachment_id'] 
+
+        return body['attachment_id']
+    
+@pytest.fixture
+def multiple_attachments(client: TestClient, multiple_sessions: list[UUID], tokens: AuthResult, session_id: str):
+    attachment_ids = []
+    for _ in multiple_sessions:
+        with open('tests/data/expressions.pdf', 'rb') as file:
+            content = file.read()
+            res = client.post(
+                f"/api/sessions/{session_id}/attachment",
+                files={'attachment':('expressions.pdf',content,'application/pdf')},
+                headers={"Authorization":f"Bearer {tokens.access_token}"}
+            )
+
+            assert res.status_code == 200, res.text
+            body = res.json()
+            assert body['attachment_id']
+            attachment_ids.append(body['attachment_id'])
+    return attachment_ids
 
 
