@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from tests.conftest import session_id
-from schemas import AuthResult
+from src.auth.schemas import AuthResult
 from uuid import UUID
 import pathlib
 

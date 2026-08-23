@@ -1,8 +1,8 @@
 import pytest 
-from api import app 
+from src.api import app 
 from fastapi.testclient import TestClient
 from tests.conftest import client, tokens, session_id, multiple_sessions
-from schemas import AuthResult
+from src.auth.schemas import AuthResult
 from uuid import UUID
 
 def test_create_session(client: TestClient ,tokens: AuthResult):
