@@ -3,7 +3,7 @@ from src.core.providers.storage import BaseStorage
 from src.core.providers.llm import LLMClient
 from src.attachment.model import Attachment
 from uuid import UUID
-from src.core.enums import MimeType, AttachmentType
+from src.core.enums.attachment import AttachmentType, VALID_MIME_TYPES
 from dataclasses import dataclass
 from src.attachment.repository import AttachmentRepository
 from datetime import datetime
@@ -14,8 +14,8 @@ from src.core.schemas import Cursor
 class AttachmentData:
     user_id: UUID
     session_id: UUID
-    attachment_type: str
-    content_type: str 
+    attachment_type: AttachmentType
+    mime_type: str 
     content: bytes
     attachment_id: UUID | None = None 
     storage_loc: str | None = None 
@@ -36,16 +36,15 @@ class AttachmentService:
     
     def upload_attachment(self, attachment_data:AttachmentData) -> UUID: 
         # validate the size and type 
-        AttachmentType(attachment_data.attachment_type)
-        MimeType(attachment_data.content_type)
-
+        self.validate_attachment(attachment_data.attachment_type, attachment_data.mime_type)
+        
         if len(attachment_data.content) > self.MAX_BYTES:
             raise ValueError(f'Content is too large. Ensure content is under {self.MAX_BYTES} bytes')
 
         # upload file to storage
         res = self.storage_provider.upload(
             attachment_data.content,
-            attachment_data.content_type
+            attachment_data.mime_type
         )
 
         attachment_data.storage_loc = res
@@ -54,7 +53,7 @@ class AttachmentService:
         attachment: Attachment = Attachment(
             session_id=attachment_data.session_id,
             attachment_type=attachment_data.attachment_type,
-            mime_type=attachment_data.content_type,
+            mime_type=attachment_data.mime_type,
             storage_loc=attachment_data.storage_loc
         )
 
@@ -91,6 +90,13 @@ class AttachmentService:
         attachment = self.attachment_repo.get_attachment(attachment_id)
         url = self.storage_provider.create_signed_url(attachment.storage_loc)
         return url
-    
+
+    def validate_attachment(self,attachment_type:str, mime_type: str):
+        attachment_type = AttachmentType(value=attachment_type)
+        if mime_type not in VALID_MIME_TYPES[attachment_type]:
+            raise ValueError(f'{mime_type} is not a valid type for an attachment of type \
+                             {attachment_type.value}. must be one of the following: \
+                             {",". join(VALID_MIME_TYPES[attachment_type])}')
+        
 
     

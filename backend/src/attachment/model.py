@@ -4,7 +4,7 @@ from src.core.models import Base
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import String, TIMESTAMP, Uuid, Enum
-from src.core.enums import AttachmentType, MimeType
+from src.core.enums import AttachmentType
 
 
 class Attachment(Base):
@@ -24,17 +24,13 @@ class Attachment(Base):
     )
 
     attachment_type: Mapped[AttachmentType] = mapped_column(
-        Enum(AttachmentType, 
-             values_callable=lambda enum_cols: [c.value for c in enum_cols]),
+        String(50),
         nullable=False,
         comment="Type of attachment (audio, pdf, image, etc.)"
     )
 
     mime_type: Mapped[str] = mapped_column(
-        Enum(
-            MimeType, 
-            values_callable=lambda enum_cols: [c.value for c in enum_cols]
-        ),
+        String(50),
         nullable=False,
         comment="Label telling other systems the format of a file"
     )

@@ -14,7 +14,8 @@ def test_upload_attachment(client: TestClient, tokens: AuthResult, session_id: U
         res = client.post(
             f"/api/sessions/{session_id}/attachment",
             files={'attachment':('expressions.pdf',content,'application/pdf')},
-            headers={"Authorization":f"Bearer {tokens.access_token}"}
+            headers={"Authorization":f"Bearer {tokens.access_token}"},
+            data={"attachment_type": "notes"}
         )
 
         assert res.status_code == 200, res.text
@@ -35,7 +36,7 @@ def test_get_attachment(client: TestClient, tokens: AuthResult,
 
 def test_get_all_attachments(client: TestClient, tokens: AuthResult, session_id: str, multiple_attachments):
     res = client.get(
-        f"/api/sessions/{session_id}/attachment?type=pdf",
+        f"/api/sessions/{session_id}/attachment?type=notes",
         headers={"Authorization":f"Bearer {tokens.access_token}"}
     )
     assert res.status_code == 200, res.text
@@ -47,7 +48,7 @@ def test_get_all_attachments(client: TestClient, tokens: AuthResult, session_id:
 
     print(f'session_id: {session_id}, cursor: {cursor}')
     paginated_res = client.get(
-        f"/api/sessions/{session_id}/attachment?type=pdf&cursor={cursor}",
+        f"/api/sessions/{session_id}/attachment?type=notes&cursor={cursor}",
         headers={"Authorization":f"Bearer {tokens.access_token}"}
     )
     assert paginated_res.status_code == 200, paginated_res.text

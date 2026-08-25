@@ -23,7 +23,7 @@ class GeminiClient(LLMClient):
                 "mime_type":mime_type
             }
         )
-
+    
     def transcribe(self, audio) -> str:
         res = self.client.models.generate_content(
             model=self._MODEL,
@@ -33,21 +33,22 @@ class GeminiClient(LLMClient):
         return res.text
 
     
-    def generate_topics(self, notes_ref, prompt: str) -> list[TopicGen]:
-        res = self.client.models.generate_content(
-            model=self._MODEL,
-            contents=notes_ref,
-            config=GenerateContentConfig(
-                system_instruction=prompt,
-                response_mime_type="application/json",
-                response_schema=list[TopicGen],
-                temperature=0
+    def generate_topics(self, notes_list: list[File]) -> list[TopicGen]:
+        with open("prompts/topic_gen.md", 'r') as prompt:
+            res = self.client.models.generate_content(
+                model=self._MODEL,
+                contents=notes_list,
+                config=GenerateContentConfig(
+                    system_instruction=prompt,
+                    response_mime_type="application/json",
+                    response_schema=list[TopicGen],
+                    temperature=0
+                )
             )
-        )
 
-        adapter = TypeAdapter(list[TopicGen])
-        topics = adapter.validate_json(res.text)
-        return topics
+            adapter = TypeAdapter(list[TopicGen])
+            topics = adapter.validate_json(res.text)
+            return topics
 
     def generate_evaluation(self, explanation, topics, prompt: str, notes) -> EvalGen:
         # serialize topics 

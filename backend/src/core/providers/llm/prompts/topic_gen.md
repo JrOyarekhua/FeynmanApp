@@ -7,7 +7,7 @@ I want you to act as a strict JSON API generating main topics for students based
 You will recieve file containing the student's notes in the following format
 ```JSON
 {
-  "Notes": File
+  "Notes": list[File]
 }
 ```
 > Note that file is the google ai file datatype

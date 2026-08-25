@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends,Form, UploadFile
 from src.core.schemas import Cursor
 from src.attachment.schema import AttachmentResponse, AllAttachmentResponse
 from src.attachment.service import AttachmentService, AttachmentData
-from src.core.enums import AttachmentType, MimeType
 from src.user.model import User
 from src.api.dependencies.auth import authorize_user
 from src.api.dependencies.services import get_attachment_service
@@ -17,18 +16,17 @@ attachment_router = APIRouter(
 @attachment_router.post("")
 async def upload_attachment(session_id:UUID,
                        attachment: UploadFile, 
+                       attachment_type: str = Form(),
                        user: User = Depends(authorize_user), 
-                       attachment_service: AttachmentService = Depends(get_attachment_service)) -> dict:
+                       attachment_service: AttachmentService = Depends(get_attachment_service)
+                       ) -> dict:
     content = await attachment.read()
-    # derive attachment_type from the content MIME type using enum helper
-    mime = attachment.content_type
-    atype = AttachmentType.from_mime(mime).value
 
     data = AttachmentData(
         user_id=user.user_id,
         session_id=session_id,
-        attachment_type=atype,
-        content_type=attachment.content_type,
+        attachment_type=attachment_type,
+        mime_type=attachment.content_type,
         content=content,
     )
     

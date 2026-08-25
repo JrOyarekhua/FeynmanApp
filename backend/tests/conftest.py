@@ -116,7 +116,8 @@ def attachment_id(client: TestClient, tokens: AuthResult, session_id: UUID):
         res = client.post(
             f"/api/sessions/{session_id}/attachment",
             files={'attachment':('expressions.pdf',content,'application/pdf')},
-            headers={"Authorization":f"Bearer {tokens.access_token}"}
+            headers={"Authorization":f"Bearer {tokens.access_token}"},
+            data={"attachment_type":"notes"}
         )
 
         assert res.status_code == 200, res.text
@@ -134,7 +135,8 @@ def multiple_attachments(client: TestClient, multiple_sessions: list[UUID], toke
             res = client.post(
                 f"/api/sessions/{session_id}/attachment",
                 files={'attachment':('expressions.pdf',content,'application/pdf')},
-                headers={"Authorization":f"Bearer {tokens.access_token}"}
+                headers={"Authorization":f"Bearer {tokens.access_token}"},
+                data={"attachment_type":"notes"}
             )
 
             assert res.status_code == 200, res.text

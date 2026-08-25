@@ -7,7 +7,7 @@ from src.core.providers.llm.schemas import TopicGen, EvalGen
 class LLMClient(ABC):
 
     @abstractmethod
-    def upload_file(self, bytes: bytes, mime_type:str) -> Any:
+    def upload_file(self, bytes: bytes, mime_type:str):
         pass 
     
     @abstractmethod
@@ -15,7 +15,7 @@ class LLMClient(ABC):
         pass 
 
     @abstractmethod
-    def generate_topics(self, notes_ref: Any, prompt:str) -> list[TopicGen]:
+    def generate_topics(self, notes_list) -> list[TopicGen]:
         pass
 
     @abstractmethod

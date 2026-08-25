@@ -1,2 +1,2 @@
-from .attachment import AttachmentType, MimeType
+from .attachment import AttachmentType
 from .evaluation import ConfidenceLevel
