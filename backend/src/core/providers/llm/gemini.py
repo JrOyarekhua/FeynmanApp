@@ -3,17 +3,19 @@ from io import BytesIO
 
 from pydantic import TypeAdapter
 from src.core.providers.llm import LLMClient
+from src.core.providers.storage import BaseStorage
 from google.genai import Client
-from google.genai.types import File,GenerateContentConfig
+from google.genai.types import File,GenerateContentConfig, Part
 
 from src.core.providers.llm.schemas import EvalGen, TopicGen
-
+from src.core.enums.attachment import VALID_MIME_TYPES
 
 class GeminiClient(LLMClient):
     _MODEL = "gemini-2.0-flash-lite"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, storage: BaseStorage):
         self.client = Client(api_key=api_key)
+        self.storage = storage
 
     def upload_file(self, bytes: bytes, mime_type: str) -> File:
         content = BytesIO(bytes)
@@ -50,7 +52,8 @@ class GeminiClient(LLMClient):
             topics = adapter.validate_json(res.text)
             return topics
 
-    def generate_evaluation(self, explanation, topics, prompt: str, notes_links: list[str,str]) -> EvalGen:
+    def generate_evaluation(self, explanation, topics, prompt: str, notes_links: list[str]) -> EvalGen:
+
         # serialize topics 
         adapter = TypeAdapter(list[TopicGen])
         formatted_topics = adapter.dump_json(topics).decode()
@@ -62,7 +65,9 @@ class GeminiClient(LLMClient):
 
         res = self.client.models.generate_content(
             model=self._MODEL,
-            contents=[user_input, notes],
+            contents=[user_input, 
+                      Part.from_uri(file_uri=link,mime_type=self.storage.create_signed_url(link))
+                      for link in notes_links],
             config=GenerateContentConfig(
                 system_instruction=prompt,
                 response_mime_type="application/json",

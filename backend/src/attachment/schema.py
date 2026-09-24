@@ -19,6 +19,8 @@ class AttachmentUpdate(BaseModel):
     attachment_type: str | None 
     mime_type: str | None 
     storage_loc: str | None 
+    created_at: datetime
+    updated_at: datetime 
 
 class AllAttachmentResponse(BaseModel):
     attachments: list[AttachmentResponse]
