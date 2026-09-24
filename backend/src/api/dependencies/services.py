@@ -8,9 +8,11 @@ from src.core.providers.auth import AuthBase
 from src.core.providers.storage import BaseStorage
 from src.topic.service import TopicService
 import src.api.dependencies.repositories as repositories
+from src.transcript.service import TranscriptService
 
 # service dependencies 
-def get_user_service( user_repo = Depends(repositories.get_user_repo)):
+def get_user_service(user_repo = Depends(repositories.get_user_repo)):
+
     return UserService(user_repo)
 
 def get_auth_service(user_service: UserService = Depends(get_user_service), 
@@ -34,4 +36,7 @@ def get_topic_service(
                         llm=llm, 
                         bucket=bucket, 
                         attachment_repo=attachment_repo)
-    
+
+def get_transcript_service(transcript_repo = Depends(repositories.get_transcript_repo),
+                           llm = Depends(get_llm)) -> 'TranscriptService':
+    return TranscriptService(repository=transcript_repo, llm=llm)

@@ -20,7 +20,7 @@ class AttachmentRepository:
     def get_attachment(self, attachment_id: UUID):
         return self.db.get(Attachment, attachment_id)
     
-    def get_all_attachments(self, session_id: UUID, user_id: UUID | None, 
+    def get_all_attachments(self, session_id: UUID, user_id: UUID | None = None, 
                             last_created_at: datetime | None = None, 
                             last_attachment_id: UUID | None = None, 
                             type: str | None = None, limit: int = 10) -> list[Attachment]:

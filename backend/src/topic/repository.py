@@ -3,7 +3,7 @@ from dataclasses import dataclass, fields
 from uuid import UUID
 
 from sqlalchemy.orm import Session
-from supabase_auth import datetime
+from datetime import datetime
 from src.topic.model import Topic
 from sqlalchemy import select, update, tuple_, insert
 
@@ -19,15 +19,18 @@ class TopicRepository:
         return topic
 
     def create_all_topics(self, topics: list[Topic]) -> list[Topic]:
-        values = [
-                    {"session_id": topic.session_id, 
-                     "name": topic.name, 
-                     "summary":topic.summary}
-
-                  for topic in topics]
         
-        query = insert(Topic, values)
-        res = self.db.execute(query).scalars().all()
+        query = insert(Topic).values(
+            [
+                {
+                    "session_id": topic.session_id, 
+                    "name": topic.name, 
+                    "summary":topic.summary
+                }
+            for topic in topics]
+        ).returning(Topic)
+        res = self.db.scalars(query).all()
+
         self.db.commit()
         return res 
 
@@ -45,7 +48,8 @@ class TopicRepository:
                 tuple_(Topic.created_at, Topic.topic_id) <
                 tuple_(cursor_date_created, cursor_topic_id))
 
-        query =query.order_by(Topic.created_at.desc()).limit(limit)
+        query=query.order_by(Topic.created_at.desc()).limit(limit)
+        print(f'query: {query}')
         return self.db.execute(query).scalars().all()
 
     def update_topic(self, topic_id: UUID,summary: str, name: str | None = None) -> Topic:

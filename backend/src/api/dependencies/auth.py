@@ -26,7 +26,7 @@ def authorize_user(req: Request, user_service: UserService = Depends(get_user_se
 
 
     if not claims:
-        raise HTTPException(status_code=401, detail="Invalid token" )
+        raise HTTPException(status_code=401, detail="Invalid token")
     
     user = user_service.get_user_by_auth_id(claims.sub)
     

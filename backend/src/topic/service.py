@@ -13,7 +13,7 @@ from src.utils.cursor import decode, encode
 @dataclass
 class PaginatedTopics:
     topics: list[Topic]
-    cursor: str
+    cursor: str 
 
 class TopicService:
     def __init__(self, topic_repo: TopicRepository, llm: LLMClient, bucket:BaseStorage, attachment_repo: AttachmentRepository):
@@ -26,12 +26,13 @@ class TopicService:
         """
         manually create a topic based on your notes
         """
+        print(f'session_id: {session_id}')
         new_topic = Topic(name=name, summary=summary, session_id=session_id)
         res = self.topic_repo.create_topic(new_topic)
         return res
 
 
-    def generate_topics(self, session_id: UUID) -> list[Topic]:
+    def generate_topics(self, session_id: UUID, user_id: UUID) -> list[Topic]:
         # get the storage path 
         notes: list['Attachment'] = self.attachment_repo.get_all_attachments(session_id=session_id, type='notes')
 
@@ -47,29 +48,42 @@ class TopicService:
         # use the notes to generate a topic 
         generated_topics: list['TopicGen'] = self.llm.generate_topics(notes_ref_list)
         topic_list = [
-            Topic(name=topic.name, summary=topic.summary) for topic in generated_topics
+            Topic(name=topic.name, summary=topic.summary, session_id=session_id) for topic in generated_topics
         ]
         return self.topic_repo.create_all_topics(topic_list)
 
     def get_topic(self, topic_id: UUID) -> Topic:
         return self.topic_repo.get_topic_by_id(topic_id)
             
-    def get_all_topics(self, session_id: UUID, cursor: str, limit: int = 10) -> PaginatedTopics:
-        decoded_cursor = decode(cursor)
+    def get_all_topics(self, session_id: UUID, cursor: str = None, limit: int = 10) -> PaginatedTopics:
+        cursor_created_at, cursor_topic_id = None, None
+
+        if cursor:
+            decoded_cursor = decode(cursor)
+            cursor_created_at = decoded_cursor.cursor_created_at
+            cursor_topic_id = decoded_cursor.cursor_id
+
         topic_list = self.topic_repo.get_topics_by_session_id(
             session_id=session_id,
-            cursor_date_created=decoded_cursor.cursor_created_at,
-            cursor_topic_id=decoded_cursor.cursor_id,
+            cursor_date_created=cursor_created_at,
+            cursor_topic_id=cursor_topic_id,
             limit=limit
         )
 
-        last_date_created, last_topic_id = topic_list[-1].created_at, topic_list[-1].topic_id
+        
 
-        new_cursor = Cursor(
-            last_date_created=last_date_created,
-            last_topic_id = last_topic_id
-        )
-        return PaginatedTopics(topics=topic_list,cursor=encode(new_cursor))
+        
+
+        encoded_cursor = ""
+        if topic_list:
+            new_cursor = Cursor(
+                cursor_created_at=topic_list[-1].created_at,
+                cursor_id = topic_list[-1].topic_id
+            )
+            encoded_cursor = encode(new_cursor)
+
+        print(f'new cursor: {encoded_cursor}')
+        return PaginatedTopics(topics=topic_list,cursor=encoded_cursor)
 
     def update_topic(self,topic_id: UUID, name: str | None, summary: str) -> Topic:
         return self.topic_repo.update_topic(topic_id=topic_id, summary=summary, name=name)

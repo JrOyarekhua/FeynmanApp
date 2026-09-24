@@ -24,7 +24,7 @@ class GeminiClient(LLMClient):
             }
         )
     
-    def transcribe(self, audio) -> str:
+    def transcribe(self, audio: bytes) -> str:
         res = self.client.models.generate_content(
             model=self._MODEL,
             contents=["Transcribe this audio exactly as spoken. Return only the transcript text with no additional commentary, formatting, or explanation. If you are unable to return an empty string",audio]
@@ -50,7 +50,7 @@ class GeminiClient(LLMClient):
             topics = adapter.validate_json(res.text)
             return topics
 
-    def generate_evaluation(self, explanation, topics, prompt: str, notes) -> EvalGen:
+    def generate_evaluation(self, explanation, topics, prompt: str, notes_links: list[str,str]) -> EvalGen:
         # serialize topics 
         adapter = TypeAdapter(list[TopicGen])
         formatted_topics = adapter.dump_json(topics).decode()
