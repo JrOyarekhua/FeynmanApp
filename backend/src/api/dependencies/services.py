@@ -9,6 +9,7 @@ from src.core.providers.storage import BaseStorage
 from src.topic.service import TopicService
 import src.api.dependencies.repositories as repositories
 from src.transcript.service import TranscriptService
+from src.evaluation.service import EvaluetionService
 
 # service dependencies 
 def get_user_service(user_repo = Depends(repositories.get_user_repo)):
@@ -40,3 +41,7 @@ def get_topic_service(
 def get_transcript_service(transcript_repo = Depends(repositories.get_transcript_repo),
                            llm = Depends(get_llm)) -> 'TranscriptService':
     return TranscriptService(repository=transcript_repo, llm=llm)
+
+def get_evaluation_service(eval_repo = Depends(repositories.get_evaluation_repo), 
+                           llm = Depends(get_llm), storage = Depends(get_storage)):
+    return EvaluetionService(repo=eval_repo,llm=llm,storage=storage)

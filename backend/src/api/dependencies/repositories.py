@@ -6,6 +6,7 @@ from src.session.repository import SessionReopsitory
 from src.attachment.repository import AttachmentRepository
 from src.topic.repository import TopicRepository
 from src.transcript.repository import TranscriptRepository
+from src.evaluation.repository import EvaluationReopsitory
 
 def get_user_repo(db: Session = Depends(get_db)):
     return UserRepository(db)
@@ -17,3 +18,5 @@ def get_topic_repo(db: Session = Depends(get_db)):
     return TopicRepository(db)
 def get_transcript_repo(db: Session = Depends(get_db)):
     return TranscriptRepository(db)
+def get_evaluation_repo(db: Session = Depends(get_db)):
+    return EvaluationReopsitory(db)
